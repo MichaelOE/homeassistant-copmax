@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "inverter_host": "[%key:common::config_flow::data::inverter_host%]",
+          "inverter_port": "[%key:common::config_flow::data::inverter_port%]",
+          "interval": "[%key:common::config_flow::data::scan_interval%]"
+        }
+      }
+    }
+  }
+}
