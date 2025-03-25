@@ -50,6 +50,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+    await coordinator.async_refresh()
+
     return True
 
 
@@ -81,10 +83,10 @@ class HassCustomIntegration:
         self._coordinator = coordinator
 
     def get_name(self):
-        return f"steca_grid_{self._inverter_host}_{str(self._inverter_port)}"
+        return f"copmax_{self._inverter_host}_{str(self._inverter_port)}"
 
     def get_unique_id(self):
-        return f"steca_grid_power_{self._inverter_host}_{str(self._inverter_port)}"
+        return f"copmax_{self._inverter_host}_{str(self._inverter_port)}"
 
 
 class CustomIntegrationCoordinator(DataUpdateCoordinator):
@@ -100,7 +102,7 @@ class CustomIntegrationCoordinator(DataUpdateCoordinator):
             # Name of the data. For logging purposes.
             name=f"CustomIntegration coordinator for '{alias}'",
             # Polling interval. Will only be polled if there are subscribers.
-            update_interval=timedelta(seconds=pollinterval),
+            update_interval=timedelta(seconds=60),
         )
         self.copmaxModbusPoll = copmaxPoll
         self.alias = alias
@@ -110,7 +112,7 @@ class CustomIntegrationCoordinator(DataUpdateCoordinator):
 
         try:
             retval = await self.copmaxModbusPoll.poll_heat_pump_data()
-            # return retval
+            return retval
 
         except Exception as e:
             _LOGGER.error(

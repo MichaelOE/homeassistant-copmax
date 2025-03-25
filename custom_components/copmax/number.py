@@ -169,11 +169,17 @@ class CustomIntegrationNumber(NumberEntity):
         # Handle User settings
         if self.entity_description.type == "ST":
             if self.coordinator.copmaxModbusPoll.user_settings_valid:
-                self._attr_native_value = (
-                    self.coordinator.copmaxModbusPoll.user_settings[
-                        (self.entity_description.register)
-                    ]
-                )
+                if (
+                    self.entity_description.register
+                    in self.coordinator.copmaxModbusPoll.user_settings
+                ):
+                    self._attr_native_value = (
+                        self.coordinator.copmaxModbusPoll.user_settings[
+                            (self.entity_description.register)
+                        ]
+                    )
+                else:
+                    self._attr_native_value = None
 
         # Handle Special functions
         if self.entity_description.type == "SF":

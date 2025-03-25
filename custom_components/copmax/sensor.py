@@ -55,12 +55,10 @@ async def async_setup_entry(
     hass: HomeAssistant, config: ConfigEntry, async_add_entities
 ):
     """Set up the sensor platform."""
-    CustomIntegration = hass.data[DOMAIN][config.entry_id]
+    copmax = hass.data[DOMAIN][config.entry_id]
 
-    entities: list[CustomIntegrationSensor] = [
-        CustomIntegrationSensor(
-            CustomIntegration._coordinator, sensor, CustomIntegration
-        )
+    entities: list[CopmaxIntegrationSensor] = [
+        CopmaxIntegrationSensor(copmax._coordinator, sensor, copmax)
         for sensor in SENSORS_HEATPUMP
     ]
 
@@ -72,7 +70,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     _LOGGER.debug("async_setup_platform")
 
 
-class CustomIntegrationSensor(CoordinatorEntity, SensorEntity):
+class CopmaxIntegrationSensor(CoordinatorEntity, SensorEntity):
     """Representation of a meter reading sensor."""
 
     def __init__(
@@ -88,7 +86,7 @@ class CustomIntegrationSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{self.coordinator.alias}_{sensor.key}"
         self._attr_name = f"{self.coordinator.alias} {sensor.name}"
 
-        _LOGGER.info(self._attr_unique_id)
+        _LOGGER.info(f"{self.coordinator.alias}: '{self._attr_unique_id}'")
         self._attr_native_value = None  # Initialize the native value
         self.suggested_display_precision = 1
 
@@ -106,7 +104,7 @@ class CustomIntegrationSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def should_poll(self):
-        return True
+        return False
 
     @property
     def friendly_name(self):
@@ -128,7 +126,7 @@ class CustomIntegrationSensor(CoordinatorEntity, SensorEntity):
         # Add the coordinator listener for data updates
         self.coordinator.async_add_listener(self._handle_coordinator_update)
         # Ensure that data is fetched initially
-        await self.coordinator.async_refresh()
+        # await self.coordinator.async_refresh()
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -155,9 +153,6 @@ class CustomIntegrationSensor(CoordinatorEntity, SensorEntity):
                     data_available = True
 
             self._attr_available = data_available
-
-            # Only call async_write_ha_state if the state has changed
-            # if data_available:
             self.async_write_ha_state()
 
         except KeyError as ex:
