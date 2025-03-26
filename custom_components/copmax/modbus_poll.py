@@ -34,19 +34,12 @@ class CopmaxModbusPoll:
 
     async def poll_heat_pump_data(self):
         try:
-            await asyncio.sleep(1)
             await self._poll_temperatures()
-            await asyncio.sleep(0.3)
-
             await self._poll_user_settings()
-            await asyncio.sleep(0.3)
-
             await self._poll_status_registers()
-            # self._poll_special_functions()
-
+            await self._poll_special_functions()
             return True
         except Exception as e:
-            _LOGGER.info(f"PollHeatPumpData - request exit FAIL")
             _LOGGER.error(f"Error PollHeatPumpData: {e}")
             return False
 
@@ -60,7 +53,7 @@ class CopmaxModbusPoll:
 
             self.temperatures_valid = True
             self.temperatures_timestamp = time.time()
-            _LOGGER.info(f"Heat pump temperatures {self.temperatures}")
+            _LOGGER.debug(f"Heat pump temperatures {self.temperatures}")
         elif (
             self.temperatures_timestamp + 300
         ) < time.time() or not self.temperatures_valid:
@@ -77,7 +70,7 @@ class CopmaxModbusPoll:
 
             self.user_settings_valid = True
             self.user_settings_timestamp = time.time()
-            _LOGGER.info(f"Heat pump user_settings {self.user_settings}")
+            # _LOGGER.debug(f"Heat pump user_settings {self.user_settings}")
         elif (
             self.user_settings_timestamp + 300
         ) < time.time() or not self.user_settings_valid:
@@ -96,7 +89,7 @@ class CopmaxModbusPoll:
 
                 self.user_settings_valid = True
                 self.user_settings_timestamp = time.time()
-                _LOGGER.info(f"Heat pump user_settings {self.user_settings}")
+                # _LOGGER.debug(f"Heat pump user_settings {self.user_settings}")
             elif (
                 self.user_settings_timestamp + 300
             ) < time.time() or not self.user_settings_valid:
@@ -115,7 +108,7 @@ class CopmaxModbusPoll:
 
                 self.user_settings_valid = True
                 self.user_settings_timestamp = time.time()
-                _LOGGER.info(f"Heat pump user_settings {self.user_settings}")
+                _LOGGER.debug(f"Heat pump user_settings {self.user_settings}")
             elif (
                 self.user_settings_timestamp + 300
             ) < time.time() or not self.user_settings_valid:
@@ -132,7 +125,7 @@ class CopmaxModbusPoll:
 
             self.status_valid = True
             self.status_timestamp = time.time()
-            _LOGGER.info(f"Heat pump status {self.status}")
+            # _LOGGER.debug(f"Heat pump status {self.status}")
         elif (self.status_timestamp + 300) < time.time() or not self.status_valid:
             self.status_valid = False
             _LOGGER.error(f"Invalid status data: {temp}")
@@ -149,46 +142,48 @@ class CopmaxModbusPoll:
 
                 self.status_valid = True
                 self.status_timestamp = time.time()
-                _LOGGER.info(f"Heat pump status {self.status}")
+                _LOGGER.debug(f"Heat pump status {self.status}")
             elif (self.status_timestamp + 300) < time.time() or not self.status_valid:
                 self.status_valid = False
                 _LOGGER.error(f"Invalid status data: {temp}")
 
-    # async def _poll_special_functions(self):
-    #     register_start = 24
-    #     no_of_registers = 6
-    #     temp = self._modbus_poll_holding_register(register_start, no_of_registers)
-    #     if len(temp) == no_of_registers:
-    #         temp2dict = [self.convert_16bit_to_signed(tmp) for tmp in temp]
-    #         self.special_functions = dict(enumerate(temp2dict, start=register_start))
+    async def _poll_special_functions(self):
+        register_start = 24
+        no_of_registers = 6
+        temp = await self._modbus_poll_holding_register(register_start, no_of_registers)
+        if len(temp) == no_of_registers:
+            temp2dict = [self.convert_16bit_to_signed(tmp) for tmp in temp]
+            self.special_functions = dict(enumerate(temp2dict, start=register_start))
 
-    #         self.special_functions_valid = True
-    #         self.special_functions_timestamp = time.time()
-    #         _LOGGER.info(f"Heat pump special_functions {self.special_functions}")
-    #     elif (
-    #         self.special_functions_timestamp + 300
-    #     ) < time.time() or not self.user_settings_valid:
-    #         self.special_functions_valid = False
-    #         _LOGGER.error(f"Invalid special_functions data: {temp}")
+            self.special_functions_valid = True
+            self.special_functions_timestamp = time.time()
+            _LOGGER.debug(f"Heat pump special_functions {self.special_functions}")
+        elif (
+            self.special_functions_timestamp + 300
+        ) < time.time() or not self.user_settings_valid:
+            self.special_functions_valid = False
+            _LOGGER.error(f"Invalid special_functions data: {temp}")
 
-    #     if self.special_functions_valid:
-    #         register_start = 30
-    #         no_of_registers = 8
-    #         temp = self._modbus_poll_holding_register(register_start, no_of_registers)
-    #         if len(temp) == no_of_registers:
-    #             temp2dict = [self.convert_16bit_to_signed(tmp) for tmp in temp]
-    #             self.special_functions |= dict(
-    #                 enumerate(temp2dict, start=register_start)
-    #             )
+        if self.special_functions_valid:
+            register_start = 30
+            no_of_registers = 8
+            temp = await self._modbus_poll_holding_register(
+                register_start, no_of_registers
+            )
+            if len(temp) == no_of_registers:
+                temp2dict = [self.convert_16bit_to_signed(tmp) for tmp in temp]
+                self.special_functions |= dict(
+                    enumerate(temp2dict, start=register_start)
+                )
 
-    #             self.special_functions_valid = True
-    #             self.special_functions_timestamp = time.time()
-    #             _LOGGER.info(f"Heat pump special_functions {self.special_functions}")
-    #         elif (
-    #             self.special_functions_timestamp + 300
-    #         ) < time.time() or not self.special_functions_valid:
-    #             self.special_functions_valid = False
-    #             _LOGGER.error(f"Invalid special_functions data: {temp}")
+                self.special_functions_valid = True
+                self.special_functions_timestamp = time.time()
+                _LOGGER.debug(f"Heat pump special_functions {self.special_functions}")
+            elif (
+                self.special_functions_timestamp + 300
+            ) < time.time() or not self.special_functions_valid:
+                self.special_functions_valid = False
+                _LOGGER.error(f"Invalid special_functions data: {temp}")
 
     async def _modbus_poll_input_register(
         self, start_addr: int, count_num: int, slave_addr: int = 1
@@ -198,6 +193,7 @@ class CopmaxModbusPoll:
                 await self._client.connect()
 
             if self._client.connected:
+                await asyncio.sleep(0.7)
                 resp = await self._client.read_input_registers(
                     start_addr, count=count_num, slave=slave_addr
                 )
@@ -229,6 +225,7 @@ class CopmaxModbusPoll:
                 await self._client.connect()
 
             if self._client.connected:
+                await asyncio.sleep(0.7)
                 resp = await self._client.read_holding_registers(
                     start_addr, count=count_num, slave=slave_addr
                 )
@@ -251,18 +248,18 @@ class CopmaxModbusPoll:
             )
             return
 
-    def modbus_write_holding_register(
+    async def modbus_write_holding_register(
         self, register_addr: int, value: int, slave_addr: int = 1
     ):
         try:
             # self._client = ModbusTcpClient(self._host, port=self._port, timeout=3)
             if not self._client.connected:
-                self._client.connect()
+                await self._client.connect()
 
             intValue = int(self.convert_signed_to_16bit(value) * 100)
 
             if self._client.connected:
-                resp = self._client.write_register(
+                resp = await self._client.write_register(
                     register_addr, intValue, slave=slave_addr
                 )
 

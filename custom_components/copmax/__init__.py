@@ -102,7 +102,7 @@ class CustomIntegrationCoordinator(DataUpdateCoordinator):
             # Name of the data. For logging purposes.
             name=f"CustomIntegration coordinator for '{alias}'",
             # Polling interval. Will only be polled if there are subscribers.
-            update_interval=timedelta(seconds=60),
+            update_interval=timedelta(seconds=15),
         )
         self.copmaxModbusPoll = copmaxPoll
         self.alias = alias
