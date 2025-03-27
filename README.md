@@ -2,6 +2,8 @@
 
 Work in progress... expect bugs/missing stuff/changes
 
+[![BuyMeCoffee][buymecoffeebadge]][michaeloe-buymecoffee]
+
 ## Target
 Integration for Home Assistant to connect to Copmax Heat pumps.
 Tested towards Copmax AW 10KW (approx. year 2009).
@@ -34,3 +36,6 @@ Information in [this thread](https://stokerpro.dk/viewtopic.php?style=19&t=26511
 [Register list](https://stokerpro.dk/viewtopic.php?style=19&p=362766#p362766)
 
 [Register info](https://stokerpro.dk/viewtopic.php?style=19&p=363554#p363554)
+
+[buymecoffeebadge]: https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png
+[michaeloe-buymecoffee]: https://buymeacoffee.com/michaeloe
