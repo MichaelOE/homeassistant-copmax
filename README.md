@@ -25,3 +25,12 @@ The controller is running 9600,8,N,1
 ## Method
 The controller uses Modbus for communication.
 
+## Credits
+Information in [this thread](https://stokerpro.dk/viewtopic.php?style=19&t=26511&start=50) was a **BIG** help in the development.
+
+
+[HW comm info](https://stokerpro.dk/viewtopic.php?style=19&p=353534#p353534)
+
+[Register list](https://stokerpro.dk/viewtopic.php?style=19&p=362766#p362766)
+
+[Register info](https://stokerpro.dk/viewtopic.php?style=19&p=363554#p363554)
