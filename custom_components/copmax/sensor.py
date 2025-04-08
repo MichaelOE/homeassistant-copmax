@@ -14,7 +14,7 @@ from homeassistant.const import UnitOfPower, UnitOfTemperature
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import CustomIntegrationCoordinator
+from . import CopmaxCoordinator
 from .const import DEFAULT_INVERTER_POLLRATE, DEVICE_MANUCFACTURER, DEVICE_MODEL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,7 +35,6 @@ class CustomIntegrationEntityDescription(SensorEntityDescription):
         icon,
         device_class,
         native_unit_of_measurement,
-        value,
         format=None,
     ):
         super().__init__(key)
@@ -47,7 +46,6 @@ class CustomIntegrationEntityDescription(SensorEntityDescription):
         if device_class is not None:
             self.device_class = device_class
         self.native_unit_of_measurement = native_unit_of_measurement
-        self.value = value
         self.format = format
 
 
@@ -75,7 +73,7 @@ class CopmaxIntegrationSensor(CoordinatorEntity, SensorEntity):
 
     def __init__(
         self,
-        coordinator: CustomIntegrationCoordinator,
+        coordinator: CopmaxCoordinator,
         sensor: CustomIntegrationEntityDescription,
         client,
     ):
@@ -84,7 +82,6 @@ class CopmaxIntegrationSensor(CoordinatorEntity, SensorEntity):
         self.coordinator = coordinator
         self.entity_description: CustomIntegrationEntityDescription = sensor
         self._attr_unique_id = f"{self.coordinator.alias}_{sensor.key}"
-        self._attr_name = f"{self.coordinator.alias} {sensor.name}"
 
         _LOGGER.info(f"{self.coordinator.alias}: '{self._attr_unique_id}'")
         self._attr_native_value = None  # Initialize the native value
@@ -179,7 +176,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:thermometer-low",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_ST",
@@ -189,7 +185,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:thermometer-high",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_OT",
@@ -199,7 +194,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:home-thermometer-outline",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_HT",
@@ -209,7 +203,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:thermometer",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_CT",
@@ -219,7 +212,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:thermometer",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_ET",
@@ -229,7 +221,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:thermometer",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     # Status registers
     CustomIntegrationEntityDescription(
@@ -240,7 +231,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:information",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_R7",
@@ -250,7 +240,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:information",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_R8",
@@ -260,7 +249,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:information",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_R9",
@@ -270,7 +258,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:remote",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_R10",
@@ -280,7 +267,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:information",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_R11",
@@ -290,7 +276,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:run",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_R12",
@@ -300,7 +285,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:information",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_R13",
@@ -310,7 +294,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:pump",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_R14",
@@ -320,7 +303,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:information",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_R15",
@@ -330,7 +312,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:information",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_R16",
@@ -340,7 +321,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:information",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_R17",
@@ -350,7 +330,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:information",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_R18",
@@ -360,7 +339,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:information",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_R19",
@@ -370,7 +348,6 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:information",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationEntityDescription(
         key="I_R20",
@@ -380,6 +357,5 @@ SENSORS_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:information",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
 )

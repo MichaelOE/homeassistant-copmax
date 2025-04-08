@@ -70,7 +70,7 @@ class CopmaxModbusPoll:
 
             self.user_settings_valid = True
             self.user_settings_timestamp = time.time()
-            # _LOGGER.debug(f"Heat pump user_settings {self.user_settings}")
+            _LOGGER.debug(f"Heat pump user_settings {self.user_settings}")
         elif (
             self.user_settings_timestamp + 300
         ) < time.time() or not self.user_settings_valid:
@@ -200,27 +200,28 @@ class CopmaxModbusPoll:
 
                 if resp.isError():
                     _LOGGER.error(f"Error reading input registers: {resp}")
-                    return
+                    return []
 
                 # Handle the response (process your data here)
                 return resp.registers
+            else:
+                return []
 
         except ModbusException as exception_error:
-            _LOGGER(
+            _LOGGER.warning(
                 f"{self._host}:{self._port} - connection failed, retrying in pymodbus ({exception_error!s})"
             )
-            return
+            return []
         except Exception as general_error:
-            _LOGGER(
+            _LOGGER.error(
                 f"{self._host}:{self._port} - unexpected error during connection: {general_error!s}"
             )
-            return
+            return []
 
     async def _modbus_poll_holding_register(
         self, start_addr: int, count_num: int, slave_addr: int = 1
     ):
         try:
-            # self._client = ModbusTcpClient(self._host, port=self._port, timeout=5)
             if not self._client.connected:
                 await self._client.connect()
 
@@ -236,14 +237,16 @@ class CopmaxModbusPoll:
 
                 # Handle the response (process your data here)
                 return resp.registers
+            else:
+                return
 
         except ModbusException as exception_error:
-            _LOGGER(
+            _LOGGER.warning(
                 f"{self._host}:{self._port} - connection failed, retrying in pymodbus ({exception_error!s})"
             )
             return
         except Exception as general_error:
-            _LOGGER(
+            _LOGGER.error(
                 f"{self._host}:{self._port} - unexpected error during connection: {general_error!s}"
             )
             return
@@ -252,7 +255,6 @@ class CopmaxModbusPoll:
         self, register_addr: int, value: int, slave_addr: int = 1
     ):
         try:
-            # self._client = ModbusTcpClient(self._host, port=self._port, timeout=3)
             if not self._client.connected:
                 await self._client.connect()
 
@@ -269,17 +271,19 @@ class CopmaxModbusPoll:
 
                 # Handle the response (process your data here)
                 return intValue
+            else:
+                return []
 
         except ModbusException as exception_error:
-            _LOGGER(
+            _LOGGER.warning(
                 f"{self._host}:{self._port} - connection failed, retrying in pymodbus ({exception_error!s})"
             )
-            return
+            return []
         except Exception as general_error:
-            _LOGGER(
+            _LOGGER.error(
                 f"{self._host}:{self._port} - unexpected error during connection: {general_error!s}"
             )
-            return
+            return []
 
     def convert_16bit_to_signed(self, value):
         # Ensure the value is within the 16-bit range

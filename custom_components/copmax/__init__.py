@@ -17,7 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 
 CONFIG_SCHEMA = vol.Schema({DOMAIN: vol.Schema({})}, extra=vol.ALLOW_EXTRA)
 
-PLATFORMS = ["number", "sensor"]
+PLATFORMS = ["number", "sensor", "switch"]
 # PLATFORMS = ["number"]
 # PLATFORMS = ["sensor"]
 
@@ -39,9 +39,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     copmaxPoll = CopmaxModbusPoll(device_hostname, device_port)
 
     # Fetch initial data so we have data when entities subscribe
-    coordinator = CustomIntegrationCoordinator(
-        hass, copmaxPoll, device_alias, device_scaninterval
-    )
+    coordinator = CopmaxCoordinator(hass, copmaxPoll, device_alias, device_scaninterval)
     await coordinator.async_config_entry_first_refresh()
 
     hass.data[DOMAIN][entry.entry_id] = HassCustomIntegration(
@@ -89,7 +87,7 @@ class HassCustomIntegration:
         return f"copmax_{self._inverter_host}_{str(self._inverter_port)}"
 
 
-class CustomIntegrationCoordinator(DataUpdateCoordinator):
+class CopmaxCoordinator(DataUpdateCoordinator):
     """CustomIntegration coordinator."""
 
     def __init__(

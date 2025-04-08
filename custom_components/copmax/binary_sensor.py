@@ -14,7 +14,7 @@ from homeassistant.const import UnitOfPower, UnitOfTemperature
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import CustomIntegrationCoordinator
+from . import CopmaxCoordinator
 from .const import DEFAULT_INVERTER_POLLRATE, DEVICE_MANUCFACTURER, DEVICE_MODEL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -77,7 +77,7 @@ class CustomIntegrationSensor(CoordinatorEntity, SensorEntity):
 
     def __init__(
         self,
-        coordinator: CustomIntegrationCoordinator,
+        coordinator: CopmaxCoordinator,
         sensor: CustomIntegrationEntityDescription,
         client,
     ):

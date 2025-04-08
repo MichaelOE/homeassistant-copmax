@@ -1,0 +1,9 @@
+{
+    "entity": {
+      "sensor": {
+        "I_RT": {
+          "name": "Returtemperatur"
+        }
+      }
+    }
+  }

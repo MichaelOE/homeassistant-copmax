@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import timedelta
 import logging
 
 from homeassistant.components.number import (
@@ -7,23 +6,13 @@ from homeassistant.components.number import (
     NumberEntity,
     NumberEntityDescription,
 )
-from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorEntity,
-    SensorEntityDescription,
-)
+from homeassistant.components.sensor import SensorEntityDescription
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (
-    EntityCategory,
-    UnitOfPower,
-    UnitOfTemperature,
-    UnitOfTime,
-)
-from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.const import EntityCategory, UnitOfTemperature, UnitOfTime
+from homeassistant.core import HomeAssistant
 
-from . import CustomIntegrationCoordinator
-from .const import DEFAULT_INVERTER_POLLRATE, DEVICE_MANUCFACTURER, DEVICE_MODEL, DOMAIN
+from . import CopmaxCoordinator
+from .const import DEVICE_MANUCFACTURER, DEVICE_MODEL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -44,7 +33,6 @@ class CustomIntegrationNumberEntityDescription(NumberEntityDescription):
         icon,
         device_class,
         native_unit_of_measurement,
-        value,
         format=None,
     ):
         super().__init__(key)
@@ -59,7 +47,6 @@ class CustomIntegrationNumberEntityDescription(NumberEntityDescription):
         if device_class is not None:
             self.device_class = device_class
         self.native_unit_of_measurement = native_unit_of_measurement
-        self.value = value
         self.format = format
 
 
@@ -92,7 +79,7 @@ class CustomIntegrationNumber(NumberEntity):
 
     def __init__(
         self,
-        coordinator: CustomIntegrationCoordinator,
+        coordinator: CopmaxCoordinator,
         sensor: CustomIntegrationNumberEntityDescription,
         client,
     ):
@@ -222,7 +209,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST02",
@@ -235,7 +221,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST03",
@@ -248,7 +233,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST04",
@@ -261,7 +245,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST05",
@@ -274,7 +257,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST06",
@@ -287,7 +269,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:information",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST07",
@@ -300,7 +281,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST08",
@@ -313,7 +293,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST09",
@@ -326,7 +305,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST10",
@@ -339,7 +317,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST11",
@@ -352,7 +329,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST12",
@@ -365,7 +341,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST13",
@@ -378,7 +353,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST14",
@@ -391,7 +365,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST15",
@@ -404,7 +377,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST16",
@@ -417,7 +389,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST17",
@@ -430,7 +401,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:information",
         device_class=None,
         native_unit_of_measurement=UnitOfTime.SECONDS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST18",
@@ -443,7 +413,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_ST19",
@@ -456,7 +425,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     # Special functions
     CustomIntegrationNumberEntityDescription(
@@ -470,7 +438,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:information",
         device_class=None,
         native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_SF02",
@@ -483,7 +450,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_SF03",
@@ -496,34 +462,33 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
-    CustomIntegrationNumberEntityDescription(
-        key="H_SF04",
-        register=27,
-        type="SF",
-        name="Compensation function heat",
-        min=0,
-        max=1,
-        step=1,
-        icon="mdi:electric-switch",
-        device_class=None,
-        native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
-    ),
-    CustomIntegrationNumberEntityDescription(
-        key="H_SF05",
-        register=28,
-        type="SF",
-        name="Heat recovery",
-        min=0,
-        max=1,
-        step=1,
-        icon="mdi:electric-switch",
-        device_class=None,
-        native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
-    ),
+    # CustomIntegrationNumberEntityDescription(
+    #     key="H_SF04",
+    #     register=27,
+    #     type="SF",
+    #     name="Compensation function heat",
+    #     min=0,
+    #     max=1,
+    #     step=1,
+    #     icon="mdi:electric-switch",
+    #     device_class=None,
+    #     native_unit_of_measurement=None,
+    #     value=lambda data, key: data[key],
+    # ),
+    # CustomIntegrationNumberEntityDescription(
+    #     key="H_SF05",
+    #     register=28,
+    #     type="SF",
+    #     name="Heat recovery",
+    #     min=0,
+    #     max=1,
+    #     step=1,
+    #     icon="mdi:electric-switch",
+    #     device_class=None,
+    #     native_unit_of_measurement=None,
+    #     value=lambda data, key: data[key],
+    # ),
     CustomIntegrationNumberEntityDescription(
         key="H_SF06",
         register=29,
@@ -535,7 +500,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_SF07",
@@ -548,7 +512,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_SF08",
@@ -561,7 +524,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     CustomIntegrationNumberEntityDescription(
         key="H_SF09",
@@ -574,7 +536,6 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
         icon="mdi:temperature-celsius",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value=lambda data, key: data[key],
     ),
     # CustomIntegrationNumberEntityDescription(
     #     key="H_SF10",
@@ -615,30 +576,30 @@ NUMBER_HEATPUMP: tuple[SensorEntityDescription, ...] = (
     #     native_unit_of_measurement=UnitOfTemperature.CELSIUS,
     #     value=lambda data, key: data[key],
     # ),
-    CustomIntegrationNumberEntityDescription(
-        key="H_SF13",
-        register=36,
-        type="SF",
-        name="Hot water control method",
-        min=0,
-        max=1,
-        step=1,
-        icon="mdi:electric-switch",
-        device_class=None,
-        native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
-    ),
-    CustomIntegrationNumberEntityDescription(
-        key="H_SF14",
-        register=37,
-        type="SF",
-        name="A/C remote controlled",
-        min=0,
-        max=1,
-        step=1,
-        icon="mdi:electric-switch",
-        device_class=None,
-        native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
-    ),
+    # CustomIntegrationNumberEntityDescription(
+    #     key="H_SF13",
+    #     register=36,
+    #     type="SF",
+    #     name="Hot water control method",
+    #     min=0,
+    #     max=1,
+    #     step=1,
+    #     icon="mdi:electric-switch",
+    #     device_class=None,
+    #     native_unit_of_measurement=None,
+    #     value=lambda data, key: data[key],
+    # ),
+    # CustomIntegrationNumberEntityDescription(
+    #     key="H_SF14",
+    #     register=37,
+    #     type="SF",
+    #     name="A/C remote controlled",
+    #     min=0,
+    #     max=1,
+    #     step=1,
+    #     icon="mdi:electric-switch",
+    #     device_class=None,
+    #     native_unit_of_measurement=None,
+    #     value=lambda data, key: data[key],
+    # ),
 )
