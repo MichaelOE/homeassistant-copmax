@@ -108,11 +108,23 @@ class CopmaxSwitch(SwitchEntity):
 
     async def async_turn_on(self, **kwargs):
         _LOGGER.info(f"switch async_turn_on '{self.entity_description.name}'...")
+        if self.entity_description.type == "SYS":
+            if self.entity_description.key == "NUMBER_MODE":
+                # self.coordinator.attr_number_mode = "slider" if self._is_on else "box"
+                self._is_on = True
+            return
+
         await self.send_to_device(1)
         """Turn the entity on."""
 
     async def async_turn_off(self, **kwargs):
         _LOGGER.info(f"switch async_turn_off '{self.entity_description.name}'...")
+        if self.entity_description.type == "SYS":
+            if self.entity_description.key == "NUMBER_MODE":
+                # self.coordinator.attr_number_mode = "slider" if self._is_on else "box"
+                self._is_on = False
+            return
+
         await self.send_to_device(0)
         """Turn the entity off."""
 
@@ -137,6 +149,11 @@ class CopmaxSwitch(SwitchEntity):
                     )
                 else:
                     self._is_on = False
+        if self.entity_description.type == "SYS":
+            if self.entity_description.key == "NUMBER_MODE":
+                self.coordinator.attr_number_mode = (
+                    "slider" if self.is_on is False else "box"
+                )
 
     async def send_to_device(self, value):
         """Send the value to the device."""
@@ -148,6 +165,14 @@ class CopmaxSwitch(SwitchEntity):
 
 
 SWITCH_HEATPUMP: tuple[SwitchEntityDescription, ...] = (
+    CopmaxSwitchEntityDesc(
+        key="NUMBER_MODE",
+        register="NUMBER_INPUT_MODE",
+        type="SYS",
+        name="Number input mode",
+        icon="mdi:pencil-outline",
+        device_class=SwitchDeviceClass.SWITCH,
+    ),
     CopmaxSwitchEntityDesc(
         key="H_SF04",
         register=27,

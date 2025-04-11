@@ -82,6 +82,7 @@ class CopmaxIntegrationSensor(CoordinatorEntity, SensorEntity):
         self.coordinator = coordinator
         self.entity_description: CustomIntegrationEntityDescription = sensor
         self._attr_unique_id = f"{self.coordinator.alias}_{sensor.key}"
+        self._attr_name = f"{self.coordinator.alias} {sensor.name}"
 
         _LOGGER.info(f"{self.coordinator.alias}: '{self._attr_unique_id}'")
         self._attr_native_value = None  # Initialize the native value

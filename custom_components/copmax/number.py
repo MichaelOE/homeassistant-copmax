@@ -91,7 +91,7 @@ class CustomIntegrationNumber(NumberEntity):
         self._attr_name = f"{self.coordinator.alias} {sensor.name}"
         self._attr_entity_category = EntityCategory.CONFIG
 
-        self.mode = "box"
+        # self.mode = "box"
         self._min = self.entity_description.min
         self._max = self.entity_description.max
         self._step = self.entity_description.step
@@ -154,6 +154,8 @@ class CustomIntegrationNumber(NumberEntity):
     def native_value(self) -> float | None:
         """Return the value reported by the number."""
 
+        self.mode = self.coordinator.attr_number_mode
+
         # Handle User settings
         if self.entity_description.type == "ST":
             if self.coordinator.copmaxModbusPoll.user_settings_valid:
@@ -185,14 +187,14 @@ class CustomIntegrationNumber(NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value of the input_number."""
-        self.send_to_device(value)
+        await self.send_to_device(value)
         self.async_write_ha_state()
 
-    def send_to_device(self, value):
+    async def send_to_device(self, value):
         """Send the value to the device."""
         _LOGGER.info(f"Sending '{value}' to device...")
-        retval = self.coordinator.copmaxModbusPoll.modbus_write_holding_register(
-            self.entity_description.register, value
+        retval = await self.coordinator.copmaxModbusPoll.modbus_write_holding_register(
+            self.entity_description.register, value, 100
         )
         _LOGGER.info(f"Got '{retval}' return...")
 

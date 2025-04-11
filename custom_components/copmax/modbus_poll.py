@@ -2,7 +2,8 @@ import asyncio
 from logging import getLogger
 import time
 
-from pymodbus.client import AsyncModbusTcpClient, ModbusTcpClient
+from .const import HOLDING_REGISTER_CODE, INPUT_REGISTER_CODE
+from pymodbus.client import AsyncModbusTcpClient
 from pymodbus.exceptions import ModbusException
 
 _LOGGER = getLogger(__name__)
@@ -46,7 +47,9 @@ class CopmaxModbusPoll:
     async def _poll_temperatures(self):
         register_start = 0
         no_of_registers = 6
-        temp = await self._modbus_poll_input_register(register_start, no_of_registers)
+        temp = await self._modbus_poll_registers(
+            INPUT_REGISTER_CODE, register_start, no_of_registers
+        )
         if len(temp) == no_of_registers:
             temp2dict = [self.convert_16bit_to_signed(tmp) for tmp in temp]
             self.temperatures = dict(enumerate(temp2dict, start=register_start))
@@ -63,7 +66,9 @@ class CopmaxModbusPoll:
     async def _poll_user_settings(self):
         register_start = 38
         no_of_registers = 6
-        temp = await self._modbus_poll_holding_register(register_start, no_of_registers)
+        temp = await self._modbus_poll_registers(
+            HOLDING_REGISTER_CODE, register_start, no_of_registers
+        )
         if len(temp) == no_of_registers:
             temp2dict = [self.convert_16bit_to_signed(tmp) for tmp in temp]
             self.user_settings = dict(enumerate(temp2dict, start=register_start))
@@ -80,8 +85,8 @@ class CopmaxModbusPoll:
         if self.user_settings_valid:
             register_start = 44
             no_of_registers = 6
-            temp = await self._modbus_poll_holding_register(
-                register_start, no_of_registers
+            temp = await self._modbus_poll_registers(
+                HOLDING_REGISTER_CODE, register_start, no_of_registers
             )
             if len(temp) == no_of_registers:
                 temp2dict = [self.convert_16bit_to_signed(tmp) for tmp in temp]
@@ -99,8 +104,8 @@ class CopmaxModbusPoll:
         if self.user_settings_valid:
             register_start = 50
             no_of_registers = 7
-            temp = await self._modbus_poll_holding_register(
-                register_start, no_of_registers
+            temp = await self._modbus_poll_registers(
+                HOLDING_REGISTER_CODE, register_start, no_of_registers
             )
             if len(temp) == no_of_registers:
                 temp2dict = [self.convert_16bit_to_signed(tmp) for tmp in temp]
@@ -118,7 +123,9 @@ class CopmaxModbusPoll:
     async def _poll_status_registers(self):
         register_start = 6
         no_of_registers = 7
-        temp = await self._modbus_poll_input_register(register_start, no_of_registers)
+        temp = await self._modbus_poll_registers(
+            HOLDING_REGISTER_CODE, register_start, no_of_registers
+        )
         if len(temp) == no_of_registers:
             temp2dict = temp
             self.status = dict(enumerate(temp2dict, start=register_start))
@@ -133,8 +140,8 @@ class CopmaxModbusPoll:
         if self.status_valid:
             register_start = 13
             no_of_registers = 8
-            temp = await self._modbus_poll_input_register(
-                register_start, no_of_registers
+            temp = await self._modbus_poll_registers(
+                HOLDING_REGISTER_CODE, register_start, no_of_registers
             )
             if len(temp) == no_of_registers:
                 temp2dict = temp
@@ -150,7 +157,9 @@ class CopmaxModbusPoll:
     async def _poll_special_functions(self):
         register_start = 24
         no_of_registers = 6
-        temp = await self._modbus_poll_holding_register(register_start, no_of_registers)
+        temp = await self._modbus_poll_registers(
+            HOLDING_REGISTER_CODE, register_start, no_of_registers
+        )
         if len(temp) == no_of_registers:
             temp2dict = [self.convert_16bit_to_signed(tmp) for tmp in temp]
             self.special_functions = dict(enumerate(temp2dict, start=register_start))
@@ -167,8 +176,8 @@ class CopmaxModbusPoll:
         if self.special_functions_valid:
             register_start = 30
             no_of_registers = 8
-            temp = await self._modbus_poll_holding_register(
-                register_start, no_of_registers
+            temp = await self._modbus_poll_registers(
+                HOLDING_REGISTER_CODE, register_start, no_of_registers
             )
             if len(temp) == no_of_registers:
                 temp2dict = [self.convert_16bit_to_signed(tmp) for tmp in temp]
@@ -185,8 +194,8 @@ class CopmaxModbusPoll:
                 self.special_functions_valid = False
                 _LOGGER.error(f"Invalid special_functions data: {temp}")
 
-    async def _modbus_poll_input_register(
-        self, start_addr: int, count_num: int, slave_addr: int = 1
+    async def _modbus_poll_registers(
+        self, register_code: hex, start_addr: int, count_num: int, slave_addr: int = 1
     ):
         try:
             if not self._client.connected:
@@ -194,9 +203,17 @@ class CopmaxModbusPoll:
 
             if self._client.connected:
                 await asyncio.sleep(0.7)
-                resp = await self._client.read_input_registers(
-                    start_addr, count=count_num, slave=slave_addr
-                )
+
+                match register_code:
+                    case 0x03:
+                        resp = await self._client.read_holding_registers(
+                            start_addr, count=count_num, slave=slave_addr
+                        )
+                    case 0x04:
+                        resp = await self._client.read_input_registers(
+                            start_addr, count=count_num, slave=slave_addr
+                        )
+                    # case _:
 
                 if resp.isError():
                     _LOGGER.error(f"Error reading input registers: {resp}")
@@ -204,61 +221,88 @@ class CopmaxModbusPoll:
 
                 # Handle the response (process your data here)
                 return resp.registers
-            else:
-                return []
 
         except ModbusException as exception_error:
             _LOGGER.warning(
                 f"{self._host}:{self._port} - connection failed, retrying in pymodbus ({exception_error!s})"
             )
-            return []
         except Exception as general_error:
             _LOGGER.error(
                 f"{self._host}:{self._port} - unexpected error during connection: {general_error!s}"
             )
-            return []
 
-    async def _modbus_poll_holding_register(
-        self, start_addr: int, count_num: int, slave_addr: int = 1
-    ):
-        try:
-            if not self._client.connected:
-                await self._client.connect()
+        return []
 
-            if self._client.connected:
-                await asyncio.sleep(0.7)
-                resp = await self._client.read_holding_registers(
-                    start_addr, count=count_num, slave=slave_addr
-                )
+    # async def _modbus_poll_input_register(
+    #     self, start_addr: int, count_num: int, slave_addr: int = 1
+    # ):
+    #     try:
+    #         if not self._client.connected:
+    #             await self._client.connect()
 
-                if resp.isError():
-                    _LOGGER.error(f"Error reading input registers: {resp}")
-                    return
+    #         if self._client.connected:
+    #             await asyncio.sleep(0.7)
+    #             resp = await self._client.read_input_registers(
+    #                 start_addr, count=count_num, slave=slave_addr
+    #             )
 
-                # Handle the response (process your data here)
-                return resp.registers
-            else:
-                return
+    #             if resp.isError():
+    #                 _LOGGER.error(f"Error reading input registers: {resp}")
+    #                 return []
 
-        except ModbusException as exception_error:
-            _LOGGER.warning(
-                f"{self._host}:{self._port} - connection failed, retrying in pymodbus ({exception_error!s})"
-            )
-            return
-        except Exception as general_error:
-            _LOGGER.error(
-                f"{self._host}:{self._port} - unexpected error during connection: {general_error!s}"
-            )
-            return
+    #             # Handle the response (process your data here)
+    #             return resp.registers
+
+    #     except ModbusException as exception_error:
+    #         _LOGGER.warning(
+    #             f"{self._host}:{self._port} - connection failed, retrying in pymodbus ({exception_error!s})"
+    #         )
+    #     except Exception as general_error:
+    #         _LOGGER.error(
+    #             f"{self._host}:{self._port} - unexpected error during connection: {general_error!s}"
+    #         )
+
+    #     return []
+
+    # async def _modbus_poll_holding_register(
+    #     self, start_addr: int, count_num: int, slave_addr: int = 1
+    # ):
+    #     try:
+    #         if not self._client.connected:
+    #             await self._client.connect()
+
+    #         if self._client.connected:
+    #             await asyncio.sleep(0.7)
+    #             resp = await self._client.read_holding_registers(
+    #                 start_addr, count=count_num, slave=slave_addr
+    #             )
+
+    #             if resp.isError():
+    #                 _LOGGER.error(f"Error reading input registers: {resp}")
+    #                 return []
+
+    #             # Handle the response (process your data here)
+    #             return resp.registers
+
+    #     except ModbusException as exception_error:
+    #         _LOGGER.warning(
+    #             f"{self._host}:{self._port} - connection failed, retrying in pymodbus ({exception_error!s})"
+    #         )
+    #     except Exception as general_error:
+    #         _LOGGER.error(
+    #             f"{self._host}:{self._port} - unexpected error during connection: {general_error!s}"
+    #         )
+
+    #     return []
 
     async def modbus_write_holding_register(
-        self, register_addr: int, value: int, slave_addr: int = 1
-    ):
+        self, register_addr: int, value: int, multiplier: int = 1, slave_addr: int = 1
+    ) -> int:
         try:
             if not self._client.connected:
                 await self._client.connect()
 
-            intValue = int(self.convert_signed_to_16bit(value) * 100)
+            intValue = int(self.convert_signed_to_16bit(value) * multiplier)
 
             if self._client.connected:
                 resp = await self._client.write_register(
@@ -267,23 +311,21 @@ class CopmaxModbusPoll:
 
                 if resp.isError():
                     _LOGGER.error(f"Error reading input registers: {resp}")
-                    return
+                    return -2
 
                 # Handle the response (process your data here)
                 return intValue
-            else:
-                return []
 
         except ModbusException as exception_error:
             _LOGGER.warning(
                 f"{self._host}:{self._port} - connection failed, retrying in pymodbus ({exception_error!s})"
             )
-            return []
         except Exception as general_error:
             _LOGGER.error(
                 f"{self._host}:{self._port} - unexpected error during connection: {general_error!s}"
             )
-            return []
+
+        return -1
 
     def convert_16bit_to_signed(self, value):
         # Ensure the value is within the 16-bit range
