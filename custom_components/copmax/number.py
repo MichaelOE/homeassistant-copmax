@@ -102,7 +102,6 @@ class CustomIntegrationNumber(NumberEntity):
     @property
     def device_info(self):
         """Return device information about this entity."""
-        _LOGGER.debug("CustomIntegration: device_info")
 
         return {
             "identifiers": {(DOMAIN, self.coordinator.alias)},
@@ -153,8 +152,6 @@ class CustomIntegrationNumber(NumberEntity):
     @property
     def native_value(self) -> float | None:
         """Return the value reported by the number."""
-
-        self.mode = self.coordinator.attr_number_mode
 
         # Handle User settings
         if self.entity_description.type == "ST":

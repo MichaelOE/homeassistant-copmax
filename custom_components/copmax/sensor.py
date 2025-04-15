@@ -91,7 +91,6 @@ class CopmaxIntegrationSensor(CoordinatorEntity, SensorEntity):
     @property
     def device_info(self):
         """Return device information about this entity."""
-        _LOGGER.debug("CustomIntegration: device_info")
 
         return {
             "identifiers": {(DOMAIN, self.coordinator.alias)},
@@ -115,7 +114,7 @@ class CopmaxIntegrationSensor(CoordinatorEntity, SensorEntity):
             return self._attr_native_value
 
         if self.entity_description.type == "STATUS":
-            return self._attr_native_value
+            return self._attr_native_value > 0
 
         return self._attr_native_value / 100
 

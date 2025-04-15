@@ -95,7 +95,6 @@ class CustomIntegrationSensor(CoordinatorEntity, SensorEntity):
     @property
     def device_info(self):
         """Return device information about this entity."""
-        _LOGGER.debug("CustomIntegration: device_info")
 
         return {
             "identifiers": {(DOMAIN, self.coordinator.alias)},
