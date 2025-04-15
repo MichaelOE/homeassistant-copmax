@@ -6,7 +6,7 @@ Work in progress... expect bugs/missing stuff/changes
 
 ## Target
 Integration for Home Assistant to connect to Copmax Heat pumps.
-Tested towards Copmax AW 10KW (approx. year 2009).
+Tested towards Copmax AW 10KW (approx. year 2009-2014).
 
 ## Connection
 The heat pump is controlled by a Siemens RWR470.10 controller.
