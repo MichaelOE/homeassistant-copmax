@@ -1,7 +1,11 @@
 {
   "domain": "copmax",
   "name": "Copmax heat pump",
+<<<<<<< HEAD
   "version": "0.0.5",
+=======
+  "version": "0.0.5",
+>>>>>>> f2da4d9df8b94b4613e0a03eb6a3626d5ec4a712
   "config_flow": true,
   "documentation": "https://github.com/MichaelOE/homeassistant-copmax",
   "iot_class": "local_polling",
