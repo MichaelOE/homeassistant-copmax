@@ -8,6 +8,16 @@ Work in progress... expect bugs/missing stuff/changes
 Integration for Home Assistant to connect to Copmax Heat pumps.
 Tested towards Copmax AW 10KW (approx. year 2009-2014).
 
+## Sensors & Settings
+There are a bit of different sensors available, as well as a lot of settings.
+Almost all settings described in the original manual is available for tweaking.
+
+**Sensors include 6x temp sensors plus some additional information about 'external run signal', 'running state' etc:**<br/>
+![billede](https://github.com/user-attachments/assets/a92963e8-5da8-4a6e-b18a-2b38cb27bd99)
+
+**The settings are almost every value described in original manual:**<br/>
+![billede](https://github.com/user-attachments/assets/b6bb8890-ddd8-4b73-8ce8-dacf1a098dde)
+
 ## Connection
 The heat pump is controlled by a Siemens RWR470.10 controller.
 Also a remote display is connected to controllers 'RS 485' connector.
