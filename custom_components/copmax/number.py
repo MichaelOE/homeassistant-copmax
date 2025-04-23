@@ -92,8 +92,11 @@ class CustomIntegrationNumber(NumberEntity):
         self._attr_entity_category = EntityCategory.CONFIG
 
         # self.mode = "box"
-        self._min = self.entity_description.min
-        self._max = self.entity_description.max
+        # self._min = self.entity_description.min
+        self.native_min_value = self.entity_description.min
+        self.native_max_value = self.entity_description.max
+
+        # self._max = self.entity_description.max
         self._step = self.entity_description.step
 
         _LOGGER.info(self._attr_unique_id)
@@ -134,15 +137,15 @@ class CustomIntegrationNumber(NumberEntity):
 
         return self._attr_native_value / 100
 
-    @property
-    def min_value(self):
-        """Return the minimum value for the input_number."""
-        return self._min
+    # @property
+    # def min_value(self):
+    #     """Return the minimum value for the input_number."""
+    #     return self._min
 
-    @property
-    def max_value(self):
-        """Return the maximum value for the input_number."""
-        return self._max
+    # @property
+    # def max_value(self):
+    #     """Return the maximum value for the input_number."""
+    #     return self._max
 
     @property
     def step(self):
@@ -190,8 +193,13 @@ class CustomIntegrationNumber(NumberEntity):
     async def send_to_device(self, value):
         """Send the value to the device."""
         _LOGGER.info(f"Sending '{value}' to device...")
+        multiply_factor = (
+            100
+            if self.entity_description.device_class == NumberDeviceClass.TEMPERATURE
+            else 1
+        )
         retval = await self.coordinator.copmaxModbusPoll.modbus_write_holding_register(
-            self.entity_description.register, value, 100
+            self.entity_description.register, value, multiply_factor
         )
         _LOGGER.info(f"Got '{retval}' return...")
 
