@@ -1,7 +1,5 @@
 # homeassistant-copmax
 
-Work in progress... expect bugs/missing stuff/changes
-
 [![BuyMeCoffee][buymecoffeebadge]][michaeloe-buymecoffee]
 
 ## Target
