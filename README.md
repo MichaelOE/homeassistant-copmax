@@ -4,7 +4,7 @@
 
 ## Target
 Integration for Home Assistant to connect to Copmax Heat pumps.
-Tested towards Copmax AW 10KW (approx. year 2009-2014).
+Tested towards Copmax AW 10KW (approx. year 2014).
 
 ## Sensors & Settings
 There are a bit of different sensors available, as well as a lot of settings.
