@@ -238,13 +238,9 @@ class CopmaxModbusPoll:
                 )
                 match register_code:
                     case 0x03:
-                        resp = await self._client.read_holding_registers(
-                            start_addr, count=count_num, slave=slave_addr
-                        )
+                        resp = await self._client.read_holding_registers(start_addr, count=count_num, device_id=slave_addr)
                     case 0x04:
-                        resp = await self._client.read_input_registers(
-                            start_addr, count=count_num, slave=slave_addr
-                        )
+                        resp = await self._client.read_input_registers(start_addr, count=count_num, device_id=slave_addr)
                     # case _:
 
                 if resp.isError():
@@ -276,9 +272,7 @@ class CopmaxModbusPoll:
             intValue = int(self.convert_signed_to_16bit(value) * multiplier)
 
             if self._client.connected:
-                resp = await self._client.write_register(
-                    register_addr, intValue, slave=slave_addr
-                )
+                resp = await self._client.write_register(register_addr, intValue, device_id=slave_addr)
 
                 if resp.isError():
                     _LOGGER.error(f"Error reading input registers: {resp}")
