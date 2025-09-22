@@ -1,7 +1,7 @@
 {
   "domain": "copmax",
   "name": "Copmax heat pump",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "config_flow": true,
   "codeowners": [
     "@MichaelOE"
@@ -9,5 +9,5 @@
   "documentation": "https://github.com/MichaelOE/homeassistant-copmax",
   "issue_tracker": "https://github.com/MichaelOE/homeassistant-copmax/issues",
   "iot_class": "local_polling",
-  "requirements": ["pymodbus==3.8.3"]
+  "requirements": ["pymodbus"]
 }
